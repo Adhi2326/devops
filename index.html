@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevOps Pipeline</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --border: #1f2d45;
+      --accent: #00d4ff;
+      --green: #00ff88;
+      --warn: #ff6b35;
+      --text: #e2e8f0;
+      --muted: #64748b;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      min-height: 100vh;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+
+    header .badge {
+      background: var(--green);
+      color: #000;
+      font-size: 0.65rem;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 3rem auto;
+      padding: 0 2rem;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .subtitle {
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      font-size: 0.9rem;
+    }
+
+    .pipeline {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 3rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .stage {
+      flex-shrink: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      text-align: center;
+      min-width: 110px;
+      position: relative;
+      transition: border-color 0.2s;
+    }
+
+    .stage:hover { border-color: var(--accent); }
+
+    .stage.active { border-color: var(--green); }
+    .stage.active .dot { background: var(--green); }
+    .stage.warn { border-color: var(--warn); }
+    .stage.warn .dot { background: var(--warn); }
+
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--muted);
+      margin: 0 auto 0.5rem;
+    }
+
+    .dot.pulse {
+      background: var(--accent);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.4); }
+    }
+
+    .stage-name {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .stage-label {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 0.25rem;
+    }
+
+    .arrow {
+      color: var(--border);
+      font-size: 1.2rem;
+      padding: 0 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.5rem;
+    }
+
+    .card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+
+    .log-line {
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 0.2rem 0;
+      border-bottom: 1px solid #1a2234;
+    }
+
+    .log-line.ok { color: var(--green); }
+    .log-line.err { color: var(--warn); }
+    .log-line.info { color: var(--accent); }
+
+    .stat { margin-bottom: 0.75rem; }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      margin-bottom: 0.3rem;
+      color: var(--muted);
+    }
+
+    .stat-header span:last-child { color: var(--text); }
+
+    .bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--accent);
+      transition: width 1s ease;
+    }
+
+    .bar-fill.green { background: var(--green); }
+    .bar-fill.warn { background: var(--warn); }
+
+    .alert-box {
+      background: rgba(255, 107, 53, 0.08);
+      border: 1px solid rgba(255, 107, 53, 0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      color: var(--warn);
+    }
+
+    .alert-box strong { display: block; margin-bottom: 0.25rem; }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.72rem;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      margin-top: 3rem;
+    }
+
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬡ DevOps</div>
+  <div class="badge">Live</div>
+</header>
+
+<main>
+  <h1>Secure CI/<span>CD</span><br>Pipeline</h1>
+  <p class="subtitle">Automated build · security scan · vulnerability alerts · email notifications</p>
+
+  <div class="pipeline">
+    <div class="stage active">
+      <div class="dot"></div>
+      <div class="stage-name">Step 1</div>
+      <div class="stage-label">Code Push</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage active">
+      <div class="dot"></div>
+      <div class="stage-name">Step 2</div>
+      <div class="stage-label">Build</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <div class="dot pulse"></div>
+      <div class="stage-name">Step 3</div>
+      <div class="stage-label">Security</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage warn">
+      <div class="dot"></div>
+      <div class="stage-name">Step 4</div>
+      <div class="stage-label">Alert</div>
+    </div>
+    <div class="arrow">→</div>
+    <div class="stage">
+      <div class="dot"></div>
+      <div class="stage-name">Step 5</div>
+      <div class="stage-label">Deploy</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h3>📋 Pipeline Log</h3>
+      <div class="log-line ok">✓ Checkout repository</div>
+      <div class="log-line ok">✓ Install dependencies</div>
+      <div class="log-line ok">✓ Run unit tests (12/12)</div>
+      <div class="log-line info">⟳ Running security scan...</div>
+      <div class="log-line err">⚠ 2 vulnerabilities found</div>
+      <div class="log-line">→ Email alert triggered</div>
+      <div class="log-line">… Awaiting approval</div>
+    </div>
+
+    <div class="card">
+      <h3>🔒 Security Score</h3>
+      <div class="stat">
+        <div class="stat-header"><span>Dependencies</span><span>94%</span></div>
+        <div class="bar"><div class="bar-fill green" style="width:94%"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-header"><span>SAST Scan</span><span>78%</span></div>
+        <div class="bar"><div class="bar-fill" style="width:78%"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-header"><span>Secrets Check</span><span>100%</span></div>
+        <div class="bar"><div class="bar-fill green" style="width:100%"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-header"><span>CVE Risk</span><span>HIGH</span></div>
+        <div class="bar"><div class="bar-fill warn" style="width:40%"></div></div>
+      </div>
+
+      <div class="alert-box">
+        <strong>⚡ Alert Sent</strong>
+        2 critical CVEs detected · Email dispatched to team
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>DevOps Pipeline · GitHub Actions · Trivy · OSSF Scorecard</footer>
+
+</body>
+</html>
