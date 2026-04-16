@@ -10,17 +10,16 @@ env:
   ALERT_EMAIL: ${{ secrets.ALERT_EMAIL }}
 
 jobs:
-  # ─── Job 1: Build & Test ───────────────────────────────────────────
+# ─── Job 1: Build & Test ───────────────────────────────────────────
   build:
     name: Build & Test
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Validate HTML
-        # The '|| true' ensures that even if tidy finds errors, the job continues
+        # Using '|| true' ensures the pipeline continues even if tidy finds formatting errors
         run: |
           sudo apt-get install -y tidy
           tidy -e src/index.html || true
@@ -29,6 +28,8 @@ jobs:
         run: |
           echo "Build complete"
           ls -la src/
+
+  # ... (Security Scan job stays the same) ...
 
   # ─── Job 2: Security Scan ─────────────────────────────────────────
   security:
