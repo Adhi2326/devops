@@ -22,7 +22,8 @@ jobs:
       - name: Validate HTML
         run: |
           sudo apt-get install -y tidy
-          tidy -e src/index.html || echo "HTML warnings detected but continuing..."
+          # This command checks for errors but allows the pipeline to continue
+          tidy -e src/index.html || echo "HTML warnings detected but proceeding with security scan..."
 
       - name: Confirm Build Artifact
         run: |
