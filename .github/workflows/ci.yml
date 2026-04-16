@@ -22,7 +22,7 @@ jobs:
       - name: Validate HTML
         run: |
           sudo apt-get install -y tidy
-          tidy -errors -quiet src/index.html || true
+          tidy -e src/index.html || echo "HTML warnings detected but continuing..."
 
       - name: Confirm Build Artifact
         run: |
